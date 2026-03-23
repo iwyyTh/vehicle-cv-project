@@ -1,6 +1,7 @@
 from src.utils.visualize import visualize_image
 from src.utils.image_utils import load_image_as_array
 from src.utils.data_loader import DataLoader
+from src.utils.file_utils import scan_dataset, get_stats, copy_images
 import matplotlib.pyplot as plt
 import matplotlib
 matplotlib.use("Agg")  # Đặt TRƯỚC khi import pyplot
