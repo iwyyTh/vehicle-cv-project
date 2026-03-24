@@ -21,3 +21,11 @@ checkpoints/
 .vscode/
 .idea/
 *.DS_Store
+
+
+# Results (optional – có thể commit các file nhỏ)
+results/
+
+# Commit .gitignore ngay
+git add .gitignore
+git commit -m "chore: add .gitignore for Python/Jupyter/OS artifacts"
