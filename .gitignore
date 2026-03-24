@@ -17,10 +17,13 @@ checkpoints/
 # Jupyter
 .ipynb_checkpoints/
 
-# IDE
+# IDE & OS
 .vscode/
 .idea/
-*.DS_Store
+.DS_Store
+Thumbs.db
+EOF
+
 
 
 # Results (optional – có thể commit các file nhỏ)
