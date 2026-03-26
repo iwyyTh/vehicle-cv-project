@@ -46,7 +46,7 @@ def save_image(img: np.ndarray, path: str) -> bool:
     """Ghi ảnh ra file, tự tạo thư mục cha nếu chưa có.
     ...
     """
-    path_obj = Path("data/processed")/path
+    path_obj = Path(path)
     path_obj.parent.mkdir(parents=True, exist_ok=True)
     success = cv2.imwrite(str(path_obj), img)
     return success
@@ -86,8 +86,8 @@ def display_color_spaces(img: np.ndarray) -> None:
     ...
     """
     cv2.imshow("Origin: ", img)
-    cv2.waitKey(0)
-    cv2.destroyAllWindows()
+    # cv2.waitKey(0)
+    # cv2.destroyAllWindows()
     img_rgb = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
     img_gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
     img_hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
@@ -145,7 +145,7 @@ def test_vehicle_pipeline():
         print(f"[OK] Trích xuất Mask (Tìm thấy {np.sum(mask > 0)} pixel)")
 
         # Test 4: Lưu ảnh đã xử lý
-        save_image(mask, "mask_result.jpg")
+        save_image(mask, "results/mask_result.jpg")
         print("[OK] Đã lưu kết quả vào data/processed/mask_result.jpg")
 
         # Test 5: Hiển thị
