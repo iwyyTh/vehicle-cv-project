@@ -93,6 +93,53 @@ def crop_roi(img: np.ndarray, x: int, y: int,
     return croi
 
 
+def correct_perspective(img: np.ndarray, src_points: np.ndarray,
+                        output_size: tuple[int, int] = (400, 300)) -> np.ndarray:
+    """Chỉnh perspective từ 4 điểm góc về view phẳng.
+
+    Args:
+        src_points: Array shape (4, 2) — 4 góc theo thứ tự
+                    [top-left, top-right, bottom-right, bottom-left].
+        output_size: (width, height) ảnh output.
+    """
+    pts_src = np.float32(src_points)
+    # tl, tr, br, bl = src_points
+
+    # Tính khoảng cách lớn nhất bằng pytago giúp xác định chiều dài, độ rộng của hình cn sẽ trải phẳng
+    # widthA = np.sqrt((tr[0] - tl[0])**2 + (tr[1] - tl[1])**2)
+    # widthB = np.sqrt((br[0] - bl[0])**2 + (br[1] - bl[1])**2)
+    # max_width = max(widthA, widthB)
+
+    # heightA = np.sqrt((abs(tl[0]-bl[0]))**2 + (abs(tl[1]-bl[1]))**2)
+    # heightB = np.sqrt((abs(tr[0]-br[0]))**2 + (abs(tr[1]-br[1]))**2)
+    # max_height = max(heightA, heightB)
+
+    # dst_points = np.array([
+    #     [0, 0],                              # Top-Left
+    #     [max_width - 1, 0],                  # Top-Right
+    #     [max_width - 1, max_height - 1],     # Bottom-Right
+    #     [0, max_height - 1]                  # Bottom-Left
+    # ], dtype=np.float32)
+
+    # Lấy width và height trực tiếp từ tham số đầu vào
+    dst_w, dst_h = output_size
+
+    # Ép tọa độ đích dàn đều ra đúng bằng kích thước output_size
+    dst_points = np.array([
+        [0, 0],                      # Top-Left
+        [dst_w - 1, 0],              # Top-Right
+        [dst_w - 1, dst_h - 1],      # Bottom-Right
+        [0, dst_h - 1]               # Bottom-Left
+    ], dtype=np.float32)
+
+    # Tạo matran bien doi kich thuoc
+    matrix = cv2.getPerspectiveTransform(src_points, dst_points)
+    # Nắn chỉnh ảnh
+    result = cv2.warpPerspective(img, matrix, output_size)
+
+    return result
+
+
 test_dir = Path("data/cars")
 test_dir.mkdir(parents=True, exist_ok=True)
 test_dir = test_dir/"img01.jpg"
@@ -107,8 +154,25 @@ if img is None:
 img_pad = resize_with_padding(img)
 img_pad_rotate = rotate_image(img_pad, 90)
 roi = crop_roi(img_pad, 0, 0, 300, 300)
+
+src_points_car_side = np.array([
+    [70, 90],    # Điểm gần gương chiếu hậu
+    [180, 95],   # Điểm gần đuôi xe (trên viền cửa sổ)
+    [180, 140],  # Điểm gần bánh sau
+    [70, 135]    # Điểm gần bánh trước
+], dtype=np.float32)
+
+img_perspective = correct_perspective(img, src_points_car_side)
+
 cv2.imshow("Resize with padding: ", img_pad)
 cv2.imshow("Rotate: ", img_pad_rotate)
 cv2.imshow("Crop roi: ", roi)
+cv2.imshow("Perspective: ", img_perspective)
+
+dst_dir = Path("data/processed")
+dst_dir.mkdir(parents=True, exist_ok=True)
+dst_dir = dst_dir/"perspective.jpg"
+
+cv2.imwrite(dst_dir, img_perspective)
 cv2.waitKey(0)
 cv2.destroyAllWindows()
