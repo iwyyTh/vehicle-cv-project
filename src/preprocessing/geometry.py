@@ -70,7 +70,7 @@ def rotate_image(img: np.ndarray, angle: float,
     rotate_matrix[0, 2] += (new_w / 2) - center[0]
     rotate_matrix[1, 2] += (new_h/2) - center[1]
 
-    rotate_img = cv2.warpAffine(src=img, M=rotate_matrix, dsize=(new_h, new_w))
+    rotate_img = cv2.warpAffine(src=img, M=rotate_matrix, dsize=(new_w, new_h))
     return rotate_img
 
 
