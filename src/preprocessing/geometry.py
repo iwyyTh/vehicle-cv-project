@@ -23,15 +23,15 @@ def resize_with_padding(img: np.ndarray, target_size: tuple[int, int] = (640, 64
         Ảnh BGR shape (target_size[1], target_size[0], C).
     """
     h, w = img.shape[:2]
-    target_h, target_w = target_size
+    target_w, target_h = target_size
     scale = min(target_h/h, target_w/w)
     new_h = int(h*scale)
     new_w = int(w*scale)
 
-    padding_top = (new_h - h) // 2
-    padding_bot = (new_h - h) // 2
-    padding_right = (new_w - w)//2
-    padding_left = (new_w - w)//2
+    padding_top = (target_h - new_h) // 2
+    padding_bot = (target_h - new_h) - padding_top
+    padding_right = (target_w - new_w)//2
+    padding_left = (target_w - new_w) - padding_right
     re_img = cv2.resize(img, (new_w, new_h), cv2.INTER_LINEAR)
 
     return cv2.copyMakeBorder(re_img, padding_top, padding_bot, padding_left, padding_right, cv2.BORDER_CONSTANT, value=pad_color)
@@ -74,6 +74,25 @@ def rotate_image(img: np.ndarray, angle: float,
     return rotate_img
 
 
+def crop_roi(img: np.ndarray, x: int, y: int,
+             w: int, h: int) -> np.ndarray:
+    """Cắt vùng ROI từ ảnh.
+
+    Raises:
+        ValueError: Nếu tọa độ vượt biên ảnh.
+    """
+    img_h, img_w = img.shape[:2]
+
+    y_end = y + h
+    x_end = x + w
+
+    if (any(k < 0 for k in [x, y])) or (y_end > img_h or x_end > img_w):
+        raise ValueError("Toa do vuot bien anh")
+
+    croi = img[y:y_end, x:x_end]
+    return croi
+
+
 test_dir = Path("data/cars")
 test_dir.mkdir(parents=True, exist_ok=True)
 test_dir = test_dir/"img01.jpg"
@@ -87,7 +106,9 @@ if img is None:
     raise ValueError("khong tim thay anh")
 img_pad = resize_with_padding(img)
 img_pad_rotate = rotate_image(img_pad, 90)
+roi = crop_roi(img_pad, 0, 0, 300, 300)
 cv2.imshow("Resize with padding: ", img_pad)
 cv2.imshow("Rotate: ", img_pad_rotate)
+cv2.imshow("Crop roi: ", roi)
 cv2.waitKey(0)
 cv2.destroyAllWindows()
