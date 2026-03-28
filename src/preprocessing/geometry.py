@@ -140,6 +140,20 @@ def correct_perspective(img: np.ndarray, src_points: np.ndarray,
     return result
 
 
+def apply_affine_transform(
+    img: np.ndarray,
+    src_pts: np.ndarray,
+    dst_pts: np.ndarray,
+) -> np.ndarray:
+    """Áp dụng affine transform từ 3 cặp điểm tương ứng."""
+    h, w = img.shape[:2]
+    M = cv2.getAffineTransform(
+        src_pts.astype(np.float32),
+        dst_pts.astype(np.float32),
+    )
+    return cv2.warpAffine(img, M, (w, h), flags=cv2.INTER_LINEAR)
+
+
 test_dir = Path("data/cars")
 test_dir.mkdir(parents=True, exist_ok=True)
 test_dir = test_dir/"img01.jpg"
